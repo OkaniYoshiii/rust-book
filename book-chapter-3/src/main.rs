@@ -14,7 +14,7 @@ fn main() {
         println!("Email address :");
         stdin()
             .read_line(&mut email)
-            .expect("Error whil reading email address");
+            .expect("Error while reading email address");
 
         let mut is_account_valid = false;
         for account in ACCOUNTS {

@@ -20,7 +20,64 @@ fn main() {
     hello(&rectangle);
     same_hello(&rectangle, &rectangle);
 
+    let first = "bonjour";
+    let longest_str : &str;
+
+    {
+        let second = String::from("second");
+        longest_str = longest(first, &second);
+        println!("{longest_str}");
+    }
+
+    // Ne marche pas car "second" sort du scope avant cette ligne
+    // longest_str peut être une référence vers "second", donc cela ne marche pas
+    // println!("{longest_str}");
+
     println!("{}{}", point.x(), point.y);
+
+    let mut square = Square {
+        point: &Point {
+            x: 1,
+            y: 1,
+        }
+    };
+    
+    {
+        let point = Point { x: 1, y: 1 };
+        square.point = &point;
+
+        println!("{}", square.point.x);
+        println!("{}", square.width());
+    }
+
+    // Ne marche pas non plus, cat point dans le scope le plus
+    // petit ne vit pas assez longtemps
+    // println!("{}", square.point.x);
+
+    let mut circle = Circle {
+        point: Point{
+            x: 0,
+            y: 0,
+        }
+    };
+
+    {
+        let point = Point { x: 0, y: 0 };
+        circle.point = point;
+
+        println!("{}", circle.point.x);
+        // Ne marche car la valeur est déplacée ("moved") dans la struct
+        // println!("{}", point.x);
+    }
+
+    // Marche car la valeur est déplacée ("moved") dans la struct
+    println!("{}", circle.point.x);
+    const VALUE: &str = "bonjour";
+    println!("{VALUE}");
+}
+
+fn longest<'a>(first: &'a str, second: &'a str) -> &'a str {
+    if first.len() > second.len() { first } else { second }
 }
 
 #[allow(dead_code)]
@@ -88,4 +145,18 @@ trait Stringable {
     fn string(&self) -> String {
         String::new()
     }
+}
+
+struct Square<'a> {
+    point: &'a Point<i32>,
+}
+
+impl<'a> Square<'_> {
+    fn width(&self) -> i32 {
+        150
+    }
+}
+
+struct Circle {
+    point: Point<i32>,
 }
